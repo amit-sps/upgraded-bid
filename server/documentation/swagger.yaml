@@ -1,0 +1,1499 @@
+openapi: 3.0.0
+info: 
+  title: Bidding-Portal Documentation
+  description: This is API's documentation
+  version: 1.0
+schemes: [http,https]
+servers:
+  - url: http://localhost:7999
+    description: local url
+  - url:  https://biddingportaldevapi.softprodigyphp.in
+    description: dev url
+  - url:  https://biddingapi.softprodigyphp.in
+    description: production url
+    
+securityDefinitions:
+  APIKeyHeader:
+    type: apiKey
+    in: header
+    name: x-access-token
+security:
+  - APIKeyHeader: []
+
+
+paths:  
+# register 
+  /auth/register:
+    post:
+      summary: register in the user
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties: 
+              name:
+                type: string
+                example: John
+              email:
+                type: string
+                example: john123@gmail.com
+              username:
+                type: string
+                example: john
+              password:
+                type: string
+                example: 123456789
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: User registered successfully.
+
+             
+        400: 
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: empty string
+                        msg:
+                          type: string
+                          example: parameter required and cannot be empty
+                        param:
+                          type: string
+                          example: name/username/password
+                        location:
+                          type: string
+                          example: body
+        
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Internal server error.
+                
+        
+#login
+  /auth/login:
+    post:
+      summary: log in the user
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties: 
+              username:
+                type: string
+                example: john
+              password:
+                type: string
+                example: 123456789
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: long string
+                user:
+                  type: object
+                  properties:
+                    isAdmin: 
+                      type: boolean
+                      example: false
+                    isEmailVerified:
+                     type: boolean
+                     example: false
+                    isActive:
+                     type: boolean
+                     example: true
+                    _id:
+                     type: integer
+                     example: 618e60ecf1be9c219429we2f
+                    username:
+                     type: string
+                     example: john
+                    password: 
+                     type: string
+                     example: long encrypted string
+                    name:
+                     type: string
+                     example: John
+
+        400: 
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: ""
+                        msg:
+                          type: string
+                          example: Username is required/ password is required
+                        param:
+                          type: string
+                          example: username/password
+                        location:
+                          type: string
+                          example: body
+        403:
+          description: Wrong credentials
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Wrong credentials.
+              
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Internal server error.
+
+# update email
+  /auth/update_email:
+    put:
+      summary: update user email
+      parameters:
+        - in: body
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                example: xyz01@gmail.com
+    
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message: 
+                    type: string
+                    example: email updated
+
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: checkin01@gmailssss.com
+                        msg:
+                          type: string
+                          example: E-mail already use
+                        param:
+                          type: string
+                          example: email
+                        location:
+                          type: string
+                          example: body
+      
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Internal server error.
+
+
+
+
+#add bid
+  /bids/addBid:
+    post:
+      summary: Return an object
+      parameters:
+        - in: body
+          name: bid
+          schema:
+            type: object
+            properties:
+              IdUsed:
+                type: string
+                example: 618e5d9b7651e0cdsef9
+              JobTitle:
+                type: string
+                example: SEO
+              URL:
+                type: string
+                example: www.xyz.com
+              department: 
+                type: string
+                example: Lamp
+              portal: 
+                type: string
+                example: upwork
+              status: 
+                type: string
+                example: Response Received
+              jobLink: 
+                type: string
+                example: www.job1590610ee0ff0058155192212005093.com
+              technology:
+                type: string
+                example: seo
+              connect: 
+                type: integer
+                example: 1
+              bidType:
+                type: string
+                example: Bid
+
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Bid added successfully.
+                  
+        401:
+          description: App URL Already exist
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: App URL Already exist.
+
+        400: 
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: ""
+                        msg:
+                          type: string
+                          example: URL is required
+                        param:
+                          type: string
+                          example: URL
+                        location:
+                          type: string
+                          example: body
+
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Internal server error.
+
+
+# get the bid
+  /bids/getBid:
+    get:
+      summary: get the bids for the logged user 
+      parameters:
+        - in: query
+          name: pageCount
+          type: integer
+          example: 1
+      
+      
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                bids: 
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        example: 6269312b9349d9e7bf8bf2s8
+                      IdUsed:
+                        type: string
+                        example: 6269312b934ww9e7bf8bf2s8
+                      JobTitle:
+                        type: string
+                        example: seo
+                      URL: 
+                        type: string
+                        example: www.demo.com
+                      username:
+                        type: string
+                        example: john
+                      nameofbidder:
+                        type: string
+                        example: edward
+                      department:
+                        type: string
+                        example: Lamp
+                      portal:
+                        type: string
+                        example: upwork
+                      status:
+                        type: string
+                        example: Response Received
+                      jobLink:
+                        type: string
+                        example: www.job.org
+                      technology:
+                        type: string
+                        example: seo
+                      createdAt:
+                        type: string
+                        example: 2022-04-26T00:00:00.000Z
+                      connect:
+                        type: integer
+                        example: 1
+                      bidType:
+                        type: string
+                        example: Bid
+
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Internal server error.
+
+# get bid by id
+  /bids/getBidById/{id}:
+    get:  
+      summary: return a array of object
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 6268eba93ae9059c39520w30
+      
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                bids: 
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        example: 6269312b9349d9e7bf8bf2s8
+                      IdUsed:
+                        type: string
+                        example: 6269312b934ww9e7bf8bf2s8
+                      JobTitle:
+                        type: string
+                        example: seo
+                      URL: 
+                        type: string
+                        example: www.demo.com
+                      username:
+                        type: string
+                        example: john
+                      nameofbidder:
+                        type: string
+                        example: edward
+                      department:
+                        type: string
+                        example: Lamp
+                      portal:
+                        type: string
+                        example: upwork
+                      status:
+                        type: string
+                        example: Response Received
+                      jobLink:
+                        type: string
+                        example: www.job.org
+                      technology:
+                        type: string
+                        example: seo
+                      createdAt:
+                        type: string
+                        example: 2022-04-26T00:00:00.000Z
+                      connect:
+                        type: integer
+                        example: 1
+                      bidType:
+                        type: string
+                        example: Bid
+                    
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Something went wrong
+                
+  
+  /bids/editBidById/{id}:
+    put:
+      summary: update the record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 6269312b9349d9e7bf8bf248
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              JobTitle:
+                type: string
+                example: react native expert
+              IdUsed:
+                type: string
+                example: 60e29e8525460408f7f574e4
+              portal:
+                type: string
+                example: PPH
+              URL:
+                type: string
+                example: https://www.upwork.com/ab/proposals/acdefg/1234/vdfsw?success
+              department:
+                type: string
+                example: MED
+              status:
+                type: string
+                example: Scrapped
+              connect:
+                type: integer
+                example: 11
+              jobLink:
+                type: string
+                example: www.job1590dcdf610/12345/123/abc/123456789/swt.com
+              technology:
+                type: string
+                example: react native
+              bidType:
+                type: string
+                example: Bid
+
+      responses:
+        200:
+          description: A bid object
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                bid: 
+                  type: object
+                  properties:
+                    _id: 
+                      type: string
+                      example: 6269312b9349d9e7bf8bf2s8
+                    IdUsed:
+                      type: string
+                      example: null
+                    JobTitle:
+                      type: string
+                      example: react native expert
+                    URL: 
+                      type: string
+                      example: https://www.upwork.com/ab/proposals/acdefg/1234/vdfsw?success
+                    username:
+                      type: string
+                      example: swatkp12
+                    nameofbidder:
+                      type: string
+                      example: Swati Kapoor
+                    idUsedForBid: 
+                      type: string
+                      example: 60e29e8525460408f7f574e4
+                    bidderId: 
+                      type: string
+                      example: 6273964c856fdf1164333fbf
+                    department:
+                      type: string
+                      example: Lamp
+                    portal:
+                      type: string
+                      example: upwork
+                    status:
+                      type: string
+                      example: Response Received
+                    jobLink:
+                      type: string
+                      example: www.job1590dcdf610/12345/123/abc/123456789/swt.com
+                    technology:
+                      type: string
+                      example: react native
+                    connect:
+                      type: integer
+                      example: 1
+                    bidType: 
+                      type: string
+                      example: Bid
+              count:
+                type: integer
+                example: 1
+
+        422: 
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: ""
+                        msg:
+                          type: string
+                          example: technology is required
+                        param:
+                          type: string
+                          example: technology
+                        location:
+                          type: string
+                          example: body
+                
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Internal server error    
+              
+
+          
+  /bids/search:
+    get:  
+      summary: search bids
+      parameters:
+        - in: query
+          name: value
+          type: string
+          example: node
+      
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+             schema:
+              type: object
+              properties:
+                bids: 
+                  type: array
+                  items: 
+                    type: object
+                    properties:
+                      _id: 
+                        type: string
+                        example: 6269312b9349d9e7bf8bf2s8
+                      IdUsed:
+                        type: string
+                        example: null
+                      JobTitle:
+                        type: string
+                        example: react native expert
+                      URL: 
+                        type: string
+                        example: https://www.upwork.com/ab/proposals/acdefg/1234/vdfsw?success
+                      username:
+                        type: string
+                        example: swatkp12
+                      nameofbidder:
+                        type: string
+                        example: Swati Kapoor
+                      idUsedForBid: 
+                        type: string
+                        example: 60e29e8525460408f7f574e4
+                      bidderId: 
+                        type: string
+                        example: 6273964c856fdf1164333fbf
+                      department:
+                        type: string
+                        example: Lamp
+                      portal:
+                        type: string
+                        example: upwork
+                      status:
+                        type: string
+                        example: Response Received
+                      jobLink:
+                        type: string
+                        example: www.job1590dcdf610/12345/123/abc/123456789/swt.com
+                      technology:
+                        type: string
+                        example: react native
+                      connect:
+                        type: integer
+                        example: 11
+                      bidType:
+                        type: string
+                        example: Bid
+                count:
+                  type: integer
+                  example: 1
+
+        422: 
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        msg:
+                          type: string
+                          example: value cannot be empty
+                        param:
+                          type: string
+                          example: value
+                        location:
+                          type: string
+                          example: query
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Something went wrong  
+             
+  /bids/biduser:
+    get:
+      summary: given the count of bids of total,today,week,last month and current month
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  totalCountBid:
+                    type: integer
+                    example: 3
+                  countToday:
+                    type: integer
+                    example: 2
+                  countWeek:
+                    type: integer
+                    example: 2
+                  lastMonthBidCount: 
+                    type: integer
+                    example: 2
+                  currentMonthBidCount:
+                    type: integer
+                    example: 2
+                  dateStartLastMonth:
+                    type: string
+                    example: 2022-04-01
+                  dateEndLastMonth:
+                    type: string
+                    example: 2022-04-30
+
+        500:
+          description: Something went wrong
+          content:
+            application/json:
+             schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: Internal server error
+      
+  /bids/countUserBids:
+    get:
+      summary: count the user bids
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Bid:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        totalBidNo:
+                          type: integer
+                          example: 103
+                        nameofbidder:
+                            type: string
+                            example: Sandeep
+  
+
+        500:
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Something went wrong  
+
+  /userId/addUserId:
+    post:
+      summary: add the userID
+      parameters:
+        - name: user
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              portal:
+                type: string
+                example: Upwork
+              id:
+                type: string
+                example: john
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 626a7697d671bb42d8faf4d8
+                      portal:
+                        type: string
+                        example: Upwork
+                      id: 
+                        type: string
+                        example: john 
+
+        400: 
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: array
+                  items:
+                    type: object
+                    properties:
+                      msg:
+                        type: string
+                        example: userId Already exist
+                      param:
+                        type: string
+                        example: id
+                      location:
+                        type: string
+                        example: body  
+          
+        500:
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Something went wrong  
+
+
+  /userId/getUserId:
+    get:
+      summary: get the useId
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 60e29e8525460408f7f574e4
+                        portal:
+                          type: string
+                          example: Upwork
+                        id: 
+                          type: string
+                          example: John
+
+        500:
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Something went wrong  
+         
+
+  /userId/editUserIdById/{id}:
+    put: 
+      summary: update the userId by Id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                example: John
+              portal:
+                type: string
+                example: Upwork
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 626a7697d671bb42d8faf4d8
+                      portal:
+                        type: string
+                        example: Upwork
+                      id: 
+                        type: string
+                        example: john 
+
+        400: 
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        msg:
+                          type: string
+                          example: id/portal required 
+                        param:
+                          type: string
+                          example: id
+                        location:
+                          type: string
+                          example: body  
+
+
+        500:
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Something went wrong  
+
+  
+  /userId/deleteUserId/{id}:
+    delete:
+      summary: delete userId
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+      
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 626a7697d671bb42d8faf4d8
+                      portal:
+                        type: string
+                        example: Upwork
+                      id: 
+                        type: string
+                        example: john 
+
+        400: 
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: 60e2a0b625460408f7f5s753c
+                        msg:
+                          type: string
+                          example: Invalid Value
+                        param:
+                          type: string
+                          example: id
+                        location:
+                          type: string
+                          example: params  
+                      
+        500:
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Something went wrong  
+
+  
+  /userId/getByPortal/{portal}:
+    get:
+      summary: get the users by portal
+      parameters:
+        - in: path
+          name: portal
+          required: true
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  userId:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 60e29e8e25460408f7f574e8
+                        portal:
+                          type: string
+                          example: Upwork
+                        id:
+                          type: string
+                          example: Mohit
+
+        400: 
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: Upwsork
+                        msg:
+                          type: string
+                          example: Portal is Invalid
+                        param:
+                          type: string
+                          example: portal
+                        location:
+                          type: string
+                          example: params  
+                      
+        500:
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Something went wrong  
+
+
+  /userId/searchByValue/{value}:
+    get:
+      summary: get the userId by search value
+      parameters:
+        - in: path
+          name: value
+          required: true
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: kalindi
+                        portal:
+                          type: string
+                          example: Upwork
+                        id:
+                          type: string
+                          example: Navjot
+                   
+        500:
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Something went wrong  
+
+
+  /auth/forgotPassword:
+    post:
+      summary:  send a password reset email to the user based on the EmailAddress
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties: 
+              email:
+                type: string
+                example: mirzanashra245@gmail.com
+
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: password reset link sent to your email account.
+
+             
+        400: 
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value: 
+                          type: string
+                          example: empty string
+                        msg: 
+                          type: string
+                          example: parameter required and cannot be empty
+                        param:
+                          type: string 
+                          example: email
+                        location: 
+                          type: string
+                          example: body
+        403:
+          description: Wrong email credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: user with given email doesn't exist
+                
+        500: 
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+
+
+
+  /auth/:token:
+    post:
+      summary:  change the password of the user based on tokens
+      parameters:
+        - in: body
+          name: user
+          schema:
+            type: object
+            properties: 
+              password:
+                type: string
+                example: Swt123@@@
+
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  message :
+                    type : string
+                    example: password reset sucessfully
+
+             
+        400: 
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value: 
+                          type: string
+                          example: empty string
+                        msg: 
+                          type: string
+                          example: parameter required and cannot be empty
+                        param:
+                          type: string 
+                          example: password
+                        location: 
+                          type: string
+                          example: body
+        403:
+          description: invalid link or expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: invalid link or expired
+                
+        500: 
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+
+# getAllPortalRecords
+  bids/getAllPortalRecords:
+    get:
+      summary: get the portal records for the chart
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: Jan
+                        Upwork:
+                          type: integer
+                          example: 334
+                        Guru:
+                          type: integer
+                          example: 132
+                        PPH:
+                          type: integer
+                          example: 111
+                        MailMarketing:
+                          type: integer
+                          example: 300
+                        Linkedin:
+                          type: integer
+                          example: 500
+
+        500: 
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error              
+                      
+
+
+
+
+# getBidTable
+  bids/getBidTable:
+    get:
+      summary: get the users today, yesturday, total,converted and submitted bids
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userBids:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+                          example: sandeep
+                        todayBids:
+                          type: integer
+                          example: 334
+                        yesturdayBids:
+                          type: integer
+                          example: 132
+                        convertedBids:
+                          type: integer
+                          example: 111
+                        submittedBids:
+                          type: integer
+                          example: 300
+                        totalBids:
+                          type: integer
+                          example: 500
+
+        500: 
+          description: Something went worng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error              
+                      
