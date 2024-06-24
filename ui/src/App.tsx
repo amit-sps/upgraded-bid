@@ -7,14 +7,14 @@ import "react-toastify/dist/ReactToastify.css";
 import Protected from "./HOC/Protected";
 import Dashboard from "./pages/Dashboard";
 import BiddingList from "./pages/BiddingList";
-import UserIdList from "./pages/UserIdList";
+import TeamList from "./pages/TeamList";
 import BidDetails from "./pages/BidDetails";
 import ResetPassword from "./pages/ResetPassword";
 import { useAppSelector } from "./redux/hooks";
+import Resources from "./pages/Resources";
 
 function App() {
-
-  const {isLoggedIn, user} = useAppSelector((state=> state.auth));
+  const { isLoggedIn, user } = useAppSelector((state) => state.auth);
   return (
     <>
       <Routes>
@@ -29,7 +29,10 @@ function App() {
             <Route index element={<BiddingList />} />
             <Route path=":bidId" element={<BidDetails />} />
           </Route>
-          {isLoggedIn && user && user.isAdmin && <Route path="userids" element={<UserIdList />} />}
+          {isLoggedIn && user && user.isAdmin && (
+            <Route path="teams" element={<TeamList />} />
+          )}
+          <Route path="resources" element={<Resources />} />
         </Route>
       </Routes>
       <ToastContainer />

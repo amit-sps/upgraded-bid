@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
+const Roles = require("../utils/roles");
 const authSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    isAdmin: { type: Boolean, default: false },
+    role: {
+      type: String,
+      default: Roles.Invited,
+      enum: [Roles.Admin, Roles.AmitOnly, Roles.BidOnly, Roles.Invited],
+    },
     email: {
       type: String,
       required: true,
@@ -18,10 +23,10 @@ const authSchema = mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    deleted:{
+    deleted: {
       type: Boolean,
       default: false,
-    }
+    },
   },
   {
     timestamps: true,

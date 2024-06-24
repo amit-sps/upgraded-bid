@@ -1,4 +1,5 @@
 import { FaHome, FaMoneyBillWave, FaUser } from "react-icons/fa";
+import { GrResources } from "react-icons/gr";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../../redux/hooks";
 
@@ -17,9 +18,15 @@ const sideBarMenus = [
   },
   {
     icon: FaUser,
-    text: "UserIds",
-    link: "/dashboard/userids",
+    text: "Teams",
+    link: "/dashboard/teams",
     isAdmin: true,
+  },
+  {
+    icon: GrResources,
+    text: "Resources",
+    link: "/dashboard/resources",
+    isAdmin: false,
   },
 ];
 

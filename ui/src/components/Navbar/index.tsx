@@ -44,9 +44,12 @@ const Navbar = () => {
             </li>
             {isLoggedIn && user && user.isAdmin && (
               <li className="cursor-pointer">
-                <Link to={"/dashboard/userids"}> User IDs</Link>
+                <Link to={"/dashboard/teams"}> Teams</Link>
               </li>
             )}
+            <li className="cursor-pointer">
+              <Link to={"/dashboard/resources"}> Resources</Link>
+            </li>
           </ul>
         </div>
         {/* End Menu List Section */}

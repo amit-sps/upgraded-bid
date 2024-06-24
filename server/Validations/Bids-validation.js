@@ -6,7 +6,7 @@ const {
   check,
 } = require("express-validator");
 const bidding = require("../models/bid");
-const userId = require("../models/userId");
+const userId = require("../models/team");
 
 exports.addBidsValidate = [
   body("JobTitle")

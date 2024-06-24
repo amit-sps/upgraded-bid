@@ -1,7 +1,7 @@
 const { param, body } = require("express-validator");
-const userId = require("../models/userId");
+const teamModel = require("../models/team");
 
-exports.addUserIdValidate = [
+exports.addTeamValidate = [
   body("portal")
     .isIn([
       "Upwork",
@@ -19,20 +19,20 @@ exports.addUserIdValidate = [
     .notEmpty()
     .bail()
     .custom((value) => {
-      return userId.findOne({ id: value }).then((userid) => {
-        if (userid !== null) {
-          return Promise.reject("UserId already exist.");
+      return teamModel.findOne({ id: value }).then((team) => {
+        if (team !== null) {
+          return Promise.reject("Team already exist.");
         }
         return true;
       });
     }),
 ];
 
-exports.getUserIdByIdValidate = [
+exports.getTeamByIdValidate = [
   param("id").isMongoId().exists().withMessage("Id is invalid."),
 ];
 
-exports.editUserIdByIdValidate = [
+exports.editTeamByIdValidate = [
   param("id").isMongoId().exists().withMessage("Id is invalid."),
   body("portal")
     .isIn([
@@ -49,7 +49,7 @@ exports.editUserIdByIdValidate = [
   body("id").trim().notEmpty().bail().withMessage("Id is required."),
 ];
 
-exports.deleteUserIdByIdValidate = [
+exports.deleteTeamByIdValidate = [
   param("id").isMongoId().exists().withMessage("Id is invalid."),
 ];
 

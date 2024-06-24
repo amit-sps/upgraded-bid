@@ -11,5 +11,15 @@ export const gradientColors = [
   "linear-gradient(135deg, #ff4e50, #f9d423)",
 ];
 
-export const baseURL = "http://biddingclone.softprodigyphp.in/";
-// export const baseURL= 'http://localhost:5455'
+// export const baseURL = "http://biddingclone.softprodigyphp.in/";
+export const baseURL= 'http://localhost:5455'
+
+
+export const Roles = {
+  Invited: "invited",
+  BidOnly: "bidOnly",
+  Admin: "admin",
+  AmitOnly: "amitOnly"
+} as const;
+
+export type Role = (typeof Roles)[keyof typeof Roles];

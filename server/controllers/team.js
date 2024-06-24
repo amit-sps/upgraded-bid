@@ -1,10 +1,7 @@
-const UserId = require("../models/userId");
+const teamModel = require("../models/team");
 const { validationResult } = require("express-validator");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const userId = require("../models/userId");
 
-exports.addUserId = async (req, res) => {
+exports.addTeam = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -12,15 +9,15 @@ exports.addUserId = async (req, res) => {
       errors: errors.array(),
     });
   }
-  const userId = new UserId(req.body);
+  const team = new teamModel(req.body);
   try {
-    UserId.findOne({ id: userId.id, portal: userId.portal }, (err, data) => {
+    teamModel.findOne({ id: team.id, portal: team.portal }, (err, data) => {
       if (data) {
         res.status(401).send({
           message: "UserId already exist.",
         });
       } else {
-        userId.save((err, id) => {
+        team.save((err, id) => {
           if (err) {
             res.status(400).send({
               message: err.message,
@@ -36,17 +33,17 @@ exports.addUserId = async (req, res) => {
   }
 };
 
-exports.getUserId = async (req, res) => {
+exports.getTeam = async (req, res) => {
   try {
-    UserId.find({}, (err, userId) => {
-      res.status(200).send({ userId: userId });
+    teamModel.find({}, (err, teams) => {
+      res.status(200).send({ data: teams });
     });
   } catch (err) {
     res.status(400).send({ message: err.message });
   }
 };
 
-exports.getUserIdById = async (req, res) => {
+exports.getTeamById = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -55,15 +52,15 @@ exports.getUserIdById = async (req, res) => {
     });
   }
   try {
-    UserId.find({ _id: req.params.id }, (err, userId) => {
-      res.status(200).send({ userId: userId });
+    teamModel.find({ _id: req.params.id }, (err, team) => {
+      res.status(200).send({ data: team });
     });
   } catch (ex) {
     res.status(401).send({ message: ex.message });
   }
 };
 
-exports.editUserIdById = async (req, res) => {
+exports.editTeamById = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -72,7 +69,7 @@ exports.editUserIdById = async (req, res) => {
     });
   }
   const id = req.params.id;
-  UserId.findByIdAndUpdate(
+  teamModel.findByIdAndUpdate(
     id,
     req.body,
     {
@@ -81,7 +78,7 @@ exports.editUserIdById = async (req, res) => {
     function (err, data) {
       if (!err) {
         res.status(201).json({
-          userId: data,
+          data,
         });
       } else {
         res.status(500).json({
@@ -91,7 +88,7 @@ exports.editUserIdById = async (req, res) => {
     }
   );
 };
-exports.deleteUserIdById = async (req, res) => {
+exports.deleteTeamById = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -100,10 +97,10 @@ exports.deleteUserIdById = async (req, res) => {
     });
   }
   const id = req.params.id;
-  UserId.findOneAndRemove({ _id: id }, function (err, data) {
+  teamModel.findOneAndRemove({ _id: id }, function (err, data) {
     if (!err) {
       res.status(203).json({
-        userId: data,
+        data,
       });
     } else {
       res.status(500).json({
@@ -121,10 +118,10 @@ exports.getByPortal = async (req, res) => {
       errors: errors.array(),
     });
   }
-  UserId.find({ portal: req.params.portal }, function (err, data) {
+  teamModel.find({ portal: req.params.portal }, function (err, data) {
     if (!err) {
       res.status(203).json({
-        userId: data,
+        data,
       });
     } else {
       res.status(500).json({
@@ -137,12 +134,12 @@ exports.getByPortal = async (req, res) => {
 exports.searchByValue = async (req, res) => {
   const value = req.params.value;
   try {
-    userId.find(
+    teamModel.find(
       {
         $or: [{ id: { $regex: value, $options: "i" } }],
       },
-      (err, userId) => {
-        res.status(200).send({ userId: userId });
+      (err, teams) => {
+        res.status(200).send({ data: teams });
       }
     );
   } catch (err) {

@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const {verifyToken} = require("./middlewares/authmiddleware");
+const { verifyToken } = require("./middlewares/authmiddleware");
 const cors = require("cors");
 const YAML = require("yamljs");
 
@@ -12,7 +12,9 @@ const swaggerJsDocs = YAML.load("./documentation/swagger.yaml");
 
 const authRouters = require("./routes/auth");
 const bid = require("./routes/Bid");
-const userId = require("./routes/userId");
+const teamRouters = require("./routes/team");
+const resourceRouters = require("./routes/resources");
+
 const { CONNECTION_STRING } = require("./config/db.config");
 
 mongoose.connect(
@@ -42,8 +44,10 @@ app.use((req, res, next) => {
   }
   next();
 });
+
 app.use("/auth", authRouters);
 app.use("/bids", verifyToken, bid);
-app.use("/userId", verifyToken, userId);
+app.use("/team", verifyToken, teamRouters);
+app.use("/resource", verifyToken, resourceRouters);
 
 module.exports = app;

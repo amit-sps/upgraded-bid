@@ -139,7 +139,7 @@ const UserIdList: React.FC = () => {
           }
         />
       )}
-      <Card title="UserId List" className="w-full  mx-auto p-2 m-4">
+      <Card title="Team List" className="w-full  mx-auto p-2 m-4">
         <div className="mb-4 flex items-center space-x-4">
           <Input
             className="w-48 border border-gray-300 rounded-md px-2 py-2 focus:outline-none focus:border-blue-500"
@@ -154,7 +154,7 @@ const UserIdList: React.FC = () => {
           >
             <span className="flex items-center">
               <PlusOutlined className="text-xl mr-2" />
-              <span className="hidden md:inline">Add UserId</span>
+              <span className="hidden md:inline">Add Team</span>
             </span>
           </button>
         </div>

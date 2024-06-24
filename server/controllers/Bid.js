@@ -2,7 +2,7 @@ const Bidding = require("../models/bid");
 const mongoose = require("mongoose");
 const moment = require("moment");
 const { validationResult } = require("express-validator");
-const userIdModel = require("../models/userId");
+const userIdModel = require("../models/team");
 const logger = require("../utils/winston.util");
 
 exports.addBid = async (req, res) => {
