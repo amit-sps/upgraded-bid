@@ -1,32 +1,48 @@
-import { FaHome, FaMoneyBillWave, FaUser } from "react-icons/fa";
+import { FaHome, FaMoneyBillWave, FaUsers } from "react-icons/fa";
 import { GrResources } from "react-icons/gr";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../../redux/hooks";
+import { Role, Roles } from "../../assets";
+import { roleGuard } from "../../HOC/RoleGuard";
+import { FaUserSecret } from "react-icons/fa6";
 
-const sideBarMenus = [
+interface SideBarMenuItem {
+  icon: React.ComponentType | any;
+  text: string;
+  link: string;
+  canAccess: Role[];
+}
+
+const sideBarMenus:SideBarMenuItem[] = [
   {
     icon: FaHome,
     text: "Dashboard",
     link: "/dashboard",
-    isAdmin: false,
+    canAccess: [Roles.Admin, Roles.AmitOnly],
   },
   {
     icon: FaMoneyBillWave,
     text: "Bids",
     link: "/dashboard/bids",
-    isAdmin: false,
+    canAccess: [Roles.Admin, Roles.AmitOnly, Roles.BidOnly],
   },
   {
-    icon: FaUser,
+    icon: FaUserSecret,
     text: "Teams",
     link: "/dashboard/teams",
-    isAdmin: true,
+    canAccess: [Roles.Admin, Roles.AmitOnly],
+  },
+  {
+    icon: FaUsers,
+    text: "Users",
+    link: "/dashboard/users",
+    canAccess: [Roles.Admin, Roles.AmitOnly],
   },
   {
     icon: GrResources,
     text: "Resources",
     link: "/dashboard/resources",
-    isAdmin: false,
+    canAccess: [Roles.ForAll],
   },
 ];
 
@@ -38,7 +54,7 @@ const Sidebar = () => {
     <div className="bg-gray-800 flex flex-col pt-10 h-full">
       <div className="flex flex-col space-y-4">
       {sideBarMenus.map((menu) => {
-          if ((menu.isAdmin && user && user.isAdmin) || !menu.isAdmin) {
+          if ((menu.canAccess && user && roleGuard(menu.canAccess,user.role)) || menu.canAccess.includes(Roles?.ForAll)) {
             return (
               <Link
                 key={menu.link}

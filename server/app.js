@@ -14,6 +14,8 @@ const authRouters = require("./routes/auth");
 const bid = require("./routes/Bid");
 const teamRouters = require("./routes/team");
 const resourceRouters = require("./routes/resources");
+const userRouters = require("./routes/users");
+
 
 const { CONNECTION_STRING } = require("./config/db.config");
 
@@ -49,5 +51,6 @@ app.use("/auth", authRouters);
 app.use("/bids", verifyToken, bid);
 app.use("/team", verifyToken, teamRouters);
 app.use("/resource", verifyToken, resourceRouters);
+app.use("/users", verifyToken, userRouters);
 
 module.exports = app;

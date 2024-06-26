@@ -10,13 +10,11 @@ const LineChart: React.FC = () => {
   useEffect(() => {
     if (isLoading || !data || !chartRef.current) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const labels = data.data.map((item: any) => item.name);
     const datasets = Object.keys(data.data[0])
       .filter(key => key !== 'name')
       .map(key => ({
         label: key,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data: data.data.map((item: any) => item[key] as number),
       }));
 
@@ -27,15 +25,26 @@ const LineChart: React.FC = () => {
         datasets: datasets,
       },
     });
+
     return () => {
       chart.destroy();
     };
   }, [data, isLoading]);
 
+  // Define styles using Tailwind CSS classes
+  const messageStyle = "text-center p-4 text-gray-500";
+
+  // Show message if data is empty
+  if (!isLoading && (!data || data.data.length === 0)) {
+    return <div className={messageStyle}>No data available for chart</div>;
+  }
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="relative">
       <Skeleton loading={isLoading} active>
-        <canvas ref={chartRef} style={{ display: isLoading ? 'none' : 'block' }} />
+        {data && data.data.length > 0 && (
+          <canvas ref={chartRef} className="block" style={{ display: isLoading ? 'none' : 'block' }} />
+        )}
       </Skeleton>
     </div>
   );

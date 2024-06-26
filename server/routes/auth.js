@@ -7,6 +7,7 @@ const {
   validateForgotPassword,
   validateResetPassword,
   updateEmailValidation,
+  validateSendInvite
 } = require("../Validations/auth-validation");
 const {
   register,
@@ -15,9 +16,13 @@ const {
   resetPassword,
   updateEmail,
   getProfile,
+  sendInvite,
+  validateInviteToken
 } = require("../controllers/auth");
 
-router.post("/register", validateRegister, register);
+router.post("/accept-invite/:token", validateRegister, register);
+router.post("/send-invite", validateSendInvite, sendInvite)
+router.get("/verify/invite-token/:token", validateInviteToken);
 router.post("/login", validateLogin, login);
 router.get("/profile", verifyToken, getProfile);
 router.post("/forgotPassword", validateForgotPassword, forgotPassword);

@@ -5,6 +5,8 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { UserInterface } from "../redux/interfaces/user-interface";
 import { login } from "../redux/slices/auth-slice";
 import { Navigate, useNavigate } from "react-router-dom";
+import { roleGuard } from "../HOC/RoleGuard";
+import { Roles } from "../assets";
 
 interface LoginResponseInterface {
   token: string;
@@ -12,10 +14,9 @@ interface LoginResponseInterface {
 }
 
 interface LoginProps {
-  setLoginPage: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Login: React.FC<LoginProps> = ({ setLoginPage }) => {
+const Login: React.FC<LoginProps> = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isLoggedIn, user } = useAppSelector((state) => state.auth);
@@ -134,7 +135,15 @@ const Login: React.FC<LoginProps> = ({ setLoginPage }) => {
   }, []);
 
   if (isLoggedIn && user) {
-    return <Navigate to={"/dashboard"} />;
+    return (
+      <Navigate
+        to={
+          roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly], user.role)
+            ? "/dashboard"
+            : "/dashboard/resources"
+        }
+      />
+    );
   }
 
   return (
@@ -216,7 +225,7 @@ const Login: React.FC<LoginProps> = ({ setLoginPage }) => {
                 Login
               </button>
             </div>
-            <div className="text-center">
+            {/* <div className="text-center">
               <span className="text-gray-600">Don't have an account?</span>{" "}
               <span
                 className="text-blue-500 cursor-pointer"
@@ -224,7 +233,7 @@ const Login: React.FC<LoginProps> = ({ setLoginPage }) => {
               >
                 Register
               </span>
-            </div>
+            </div> */}
           </form>
         </div>
       </div>

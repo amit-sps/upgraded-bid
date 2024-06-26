@@ -22,4 +22,7 @@ const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children }) => {
   return <>{children}</>;
 };
 
+export const roleGuard = (hasAccess: Role[], userRole: Role) =>
+  hasAccess.includes(userRole);
+
 export default RoleGuard;

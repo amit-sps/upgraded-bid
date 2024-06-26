@@ -4,7 +4,6 @@ const roleGuard =
   (roles = []) =>
   (req, res, next) => {
     const user = req?.user;
-    console.log(roles, user.role, roles.includes(user.role));
     if (!user) {
       return res.status(404).send({ auth: false, message: "User not found." });
     }

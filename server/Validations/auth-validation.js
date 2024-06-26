@@ -50,16 +50,28 @@ exports.validateRegister = [
     }),
 ];
 
+exports.validateSendInvite = [
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required.")
+    .isEmail()
+    .withMessage("Email is not valid.")
+    .custom(async (value) => {
+      const user = await User.findOne({ email: value });
+      if (user) {
+        throw new Error("User already exists with this email.");
+      }
+    }),
+];
+
 exports.validateLogin = [
   body("username").trim().notEmpty().withMessage("Username is required."),
   body("password").notEmpty().withMessage("Password is required."),
 ];
 
 exports.validateForgotPassword = [
-  body("email", "Email is required.")
-    .trim()
-    .notEmpty()
-    .bail()
+  body("email", "Email is required.").trim().notEmpty().bail(),
 ];
 
 exports.validateResetPassword = [

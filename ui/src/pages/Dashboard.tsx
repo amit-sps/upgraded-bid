@@ -1,3 +1,5 @@
+import { roleGuard } from "../HOC/RoleGuard";
+import { Roles } from "../assets";
 import BidTable from "../components/BidTable";
 import Cards from "../components/Cards";
 import UserListGraph from "../components/UserListGraph";
@@ -14,7 +16,7 @@ function Dashboard() {
       <div className="py-6 px-4">
         <UserListGraph />
       </div>
-      {user && user.isAdmin && (
+      {user && roleGuard([Roles.Admin, Roles.AmitOnly], user.role) && (
         <div className="py-6 px-4">
           <BidTable />
         </div>

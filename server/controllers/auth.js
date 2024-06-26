@@ -9,9 +9,21 @@ const bcrypt = require("bcryptjs");
 const { PRIVATE_KEY } = require("../config/jwt.config");
 const { APP_FRONTENED_URL } = require("../config/app.config");
 const logger = require("../utils/winston.util");
+const ejs = require("ejs");
+const path = require("path");
+const sendMail = require("../utils/mailer");
 
 exports.register = async (req, res) => {
   try {
+    const { token } = req.params;
+    const isValidToken = jwt.verify(token, process.env.INVITE_SECRET);
+
+    if (!isValidToken) {
+      return res.status(400).json({
+        message: "Invalid invite token or expired.",
+      });
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       logger.error(errors.array());
@@ -31,7 +43,7 @@ exports.register = async (req, res) => {
     });
 
     if (authData._id) {
-      return res.status(201).send({ message: "User registered successfully." });
+      return res.status(201).send({ message: "Invite accepted." });
     } else {
       return res.status(400).send({
         message: "Something went wrong please try again.",
@@ -40,6 +52,66 @@ exports.register = async (req, res) => {
   } catch (ex) {
     logger.error(ex.message);
     return res.status(500).send({ message: "Internal server error." });
+  }
+};
+
+exports.sendInvite = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.error(errors.array());
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
+
+    const inviteToken = jwt.sign(
+      { email: req.body.email },
+      process.env.INVITE_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    const inviteLink = `${process.env.FRONTEND_URL}/accept-invite?token=${inviteToken}`;
+
+    const mailTemplate = await ejs.renderFile(
+      path.join(__dirname, "../utils/template", "invite-template.ejs"),
+      { inviteLink, supportMail: process.env.MAIL_FROM_ADDRESS }
+    );
+
+    sendMail({
+      to: req.body.email,
+      subject: "Invite for join team",
+      html: mailTemplate,
+    });
+
+    return res.status(201).json({ message: "Invite sent to the email." });
+  } catch (error) {
+    logger.error(error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+exports.validateInviteToken = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const isValidToken = jwt.verify(token, process.env.INVITE_SECRET);
+
+    console.log(isValidToken);
+
+    if (!isValidToken) {
+      return res.status(400).json({
+        message: "Invalid invite token or expired.",
+      });
+    }
+    return res.status(200).json({
+      message: "Valid invite token.",
+      data: { email: isValidToken.email },
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: "Invalid invite token or expired.",
+    });
   }
 };
 
@@ -75,7 +147,7 @@ exports.login = async (req, res) => {
             res.status(200).send({
               token,
               user: {
-                isAdmin: user.isAdmin,
+                role: user.role,
                 name: user.name,
                 username: user.username,
                 _id: user._id,

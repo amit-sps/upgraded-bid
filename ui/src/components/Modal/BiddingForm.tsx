@@ -59,7 +59,7 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
       } else {
         const errorMessage = responseData
           ? responseData?.message
-          : "Failed to add User ID.";
+          : "Failed to add team.";
         toast.error(errorMessage, { autoClose: 1000 });
       }
     }

@@ -1,14 +1,12 @@
+import { notification } from "antd";
 import axios from "../axios";
-import React, { useState } from "react";
-// import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import { registerAuth } from "../Context/apis/index";
-interface RegisterProps {
-  setLoginPage: React.Dispatch<React.SetStateAction<boolean>>;
-}
+interface RegisterProps {}
 
-const Register: React.FC<RegisterProps> = ({ setLoginPage }) => {
+const Register: React.FC<RegisterProps> = () => {
   const [newUser, setNewUser] = useState({
     name: "",
     username: "",
@@ -16,6 +14,9 @@ const Register: React.FC<RegisterProps> = ({ setLoginPage }) => {
     password: "",
     confirm_password: "",
   });
+
+  const [searchParam] = useSearchParams();
+  const navigate = useNavigate();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [errors, setErrors] = useState<any>({});
@@ -34,8 +35,13 @@ const Register: React.FC<RegisterProps> = ({ setLoginPage }) => {
       return;
     }
     try {
-      await axios.post("/auth/register", newUser);
+      await axios.post(
+        `/auth/accept-invite/${searchParam.get("token")}`,
+        newUser
+      );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      notification.success({ message: "Registration success.", duration: 2 });
+      navigate("/")
     } catch (error: any) {
       const responseData = error?.response?.data;
       if (responseData?.errors?.length) {
@@ -85,6 +91,22 @@ const Register: React.FC<RegisterProps> = ({ setLoginPage }) => {
     return errors;
   };
 
+  const validateToken = async () => {
+    try {
+      const { data } = await axios.get(
+        `/auth/verify/invite-token/${searchParam.get("token")}`
+      );
+
+      setNewUser({ ...newUser, email: data.data.email });
+    } catch (error) {
+      navigate("/invalid-invite")
+    }
+  };
+
+  useEffect(() => {
+    validateToken();
+  }, []);
+
   return (
     <>
       <ToastContainer />
@@ -101,7 +123,7 @@ const Register: React.FC<RegisterProps> = ({ setLoginPage }) => {
           </div>
 
           <h3 className="text-lg font-bold mb-6 text-center text-gray-800">
-            Bidding Info Register
+            Accept Bidding Info Invite
           </h3>
           <form
             noValidate
@@ -165,6 +187,8 @@ const Register: React.FC<RegisterProps> = ({ setLoginPage }) => {
                   name="email"
                   type="email"
                   required
+                  readOnly
+                  value={newUser?.email}
                   onChange={handleChange}
                   className="outline-none block w-full rounded-md border-0 px-2 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6"
                 />
@@ -225,17 +249,8 @@ const Register: React.FC<RegisterProps> = ({ setLoginPage }) => {
                 type="submit"
                 className="ml-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-8 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               >
-                Register
+                Accept Invite +
               </button>
-            </div>
-            <div className="text-center">
-              <span className="text-gray-600">Already have an account?</span>{" "}
-              <span
-                className="text-blue-500 cursor-pointer"
-                onClick={() => setLoginPage(true)}
-              >
-                Login
-              </span>
             </div>
           </form>
         </div>

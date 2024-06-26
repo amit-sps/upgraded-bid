@@ -50,7 +50,7 @@ const UserIdForm: React.FC<UserIdFormProps> = ({
       setLoading(false);
       refetch();
       setModal(false);
-      toast.success("User ID added successfully.", { autoClose: 1000 });
+      toast.success("Team added successfully.", { autoClose: 1000 });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setLoading(false);
@@ -63,7 +63,7 @@ const UserIdForm: React.FC<UserIdFormProps> = ({
       } else {
         const errorMessage = responseData
           ? responseData?.message
-          : "Failed to add User ID.";
+          : "Failed to add team.";
         toast.error(errorMessage, { autoClose: 1000 });
       }
     }
@@ -93,7 +93,7 @@ const UserIdForm: React.FC<UserIdFormProps> = ({
   return (
     <div className="w-[450px]">
       <h1 className="text-xl font-md mb-4">
-        {userId ? "Update" : "Add"} User ID
+        {userId ? "Update" : "Add"} Team
       </h1>
       <Form
         key={JSON.stringify(initialValue)}

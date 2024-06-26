@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>You're Invited!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #ffffff;
+            color: #333;
+        }
+        h2 {
+            color: #007bff;
+            text-align: center;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+        .button-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <p>Hi there,</p>
+    <p>We're excited to invite you to join our team. Click the button below to accept the invitation:</p>
+    <div class="button-container">
+        <a href="<%= inviteLink %>" class="button">Join Now</a>
+    </div>
+    <p>Looking forward to having you with us!</p>
+    <p>Best regards,<br>Amit's Team</p>
+    <div class="footer">
+        <p>If you have any questions, feel free to <a href="mailto:<%= supportMail %>">contact us</a>.</p>
+    </div>
+</body>
+</html>

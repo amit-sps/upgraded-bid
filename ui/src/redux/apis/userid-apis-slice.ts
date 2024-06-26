@@ -8,7 +8,7 @@ export interface UserIdInterface {
 }
 
 interface UserIdResponseInterface {
-  userId: UserIdInterface[];
+  data: UserIdInterface[];
 }
 
 export const UserIdsAPIs = createApi({
@@ -27,7 +27,7 @@ export const UserIdsAPIs = createApi({
     return {
       getUserIdList: builder.query<UserIdResponseInterface, void>({
         query: () => ({
-          url: `/userId/getUserId`,
+          url: `/team/getTeam`,
         }),
       }),
     };

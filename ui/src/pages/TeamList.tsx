@@ -37,7 +37,7 @@ const UserIdList: React.FC = () => {
 
   const { data: userIdListData, isLoading, refetch } = useGetUserIdListQuery();
 
-  const data: UserIdInterface[] | undefined = userIdListData?.userId;
+  const data: UserIdInterface[] | undefined = userIdListData?.data;
 
   const closeModal = () => {
     setModal(false);

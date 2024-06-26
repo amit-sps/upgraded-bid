@@ -16,10 +16,11 @@ export const baseURL= 'http://localhost:5455'
 
 
 export const Roles = {
+  ForAll: "all",
   Invited: "invited",
   BidOnly: "bidOnly",
   Admin: "admin",
-  AmitOnly: "amitOnly"
+  AmitOnly: "amitOnly",
 } as const;
 
 export type Role = (typeof Roles)[keyof typeof Roles];

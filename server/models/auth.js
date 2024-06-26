@@ -27,6 +27,10 @@ const authSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    skills: {
+      type: [String],
+      default: [],
+    },
   },
   {
     timestamps: true,

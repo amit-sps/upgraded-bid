@@ -4,6 +4,7 @@ const moment = require("moment");
 const { validationResult } = require("express-validator");
 const userIdModel = require("../models/team");
 const logger = require("../utils/winston.util");
+const Roles = require("../utils/roles");
 
 exports.addBid = async (req, res) => {
   try {
@@ -90,10 +91,10 @@ const buildQuery = (req) => {
     query.bidType = bidType;
   }
   const {
-    user: { _id: userId, isAdmin },
+    user: { _id: userId, role },
   } = req;
 
-  if (!isAdmin) {
+  if (!role === Roles.Admin || !role === Roles.AmitOnly) {
     query.bidderId = userId;
   }
 
@@ -510,7 +511,8 @@ exports.usercountBids = async function (req, res) {
     .format("YYYY-MM-DD");
 
   let username = req.user.username;
-  let isAdmin = req.user.isAdmin;
+  const isAdmin =
+    req.user.role === Roles.Admin || req.user.role === Roles.AmitOnly || false;
   try {
     if (isAdmin) {
       let BidToday = await Bidding.countDocuments({

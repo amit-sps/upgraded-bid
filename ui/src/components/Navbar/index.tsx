@@ -5,6 +5,8 @@ import { setSidebar } from "../../redux/slices/app-slice";
 import { Link } from "react-router-dom";
 import Confirmation from "../Dialog/Confirmation";
 import { RiLogoutCircleRLine } from "react-icons/ri";
+import { roleGuard } from "../../HOC/RoleGuard";
+import { Roles } from "../../assets";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
@@ -36,17 +38,30 @@ const Navbar = () => {
         {/* Menu List Section */}
         <div>
           <ul className="flex items-center gap-10 space-x-4 text-black">
-            <li className="cursor-pointer">
-              <Link to={"/dashboard"}> Dashboard </Link>
-            </li>
-            <li className="cursor-pointer">
-              <Link to={"/dashboard/bids"}> Bids</Link>
-            </li>
-            {isLoggedIn && user && user.isAdmin && (
-              <li className="cursor-pointer">
-                <Link to={"/dashboard/teams"}> Teams</Link>
-              </li>
-            )}
+            {isLoggedIn &&
+              user &&
+              roleGuard([Roles.Admin, Roles.AmitOnly], user.role) && (
+                <li className="cursor-pointer">
+                  <Link to={"/dashboard"}> Dashboard </Link>
+                </li>
+              )}
+            {isLoggedIn &&
+              user &&
+              roleGuard(
+                [Roles.Admin, Roles.AmitOnly, Roles.BidOnly],
+                user.role
+              ) && (
+                <li className="cursor-pointer">
+                  <Link to={"/dashboard/bids"}> Bids</Link>
+                </li>
+              )}
+            {isLoggedIn &&
+              user &&
+              roleGuard([Roles.Admin, Roles.AmitOnly], user.role) && (
+                <li className="cursor-pointer">
+                  <Link to={"/dashboard/teams"}> Teams</Link>
+                </li>
+              )}
             <li className="cursor-pointer">
               <Link to={"/dashboard/resources"}> Resources</Link>
             </li>
