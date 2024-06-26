@@ -127,7 +127,7 @@ const UserLists: React.FC = () => {
       render: (isActive: boolean, record: UserInterface) => (
         <Switch
           checked={isActive}
-          onChange={(checked) => handleToggleActive(record._id)}
+          onChange={() => handleToggleActive(record._id)}
         />
       ),
     },
