@@ -1,7 +1,7 @@
 // RoleGuard.tsx
 import React from "react";
 import { Navigate } from "react-router-dom"; // or any routing library you use
-import { Role } from "../assets";
+import { Role, Roles } from "../assets";
 import { useAppSelector } from "../redux/hooks";
 
 interface RoleGuardProps {
@@ -23,6 +23,6 @@ const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children }) => {
 };
 
 export const roleGuard = (hasAccess: Role[], userRole: Role) =>
-  hasAccess.includes(userRole);
+  hasAccess.includes(userRole) || hasAccess.includes(Roles.ForAll);
 
 export default RoleGuard;

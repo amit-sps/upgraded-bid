@@ -189,21 +189,19 @@ const Resources: React.FC = () => {
     <Card title="Resources" className="w-full mx-auto p-2 m-4">
       <div className="mb-4 flex items-right space-x-4">
         <SearchBar search={search} handleSearch={handleSearchChange} />
-        {isLoggedIn &&
-          user &&
-          roleGuard([Roles.Admin, Roles.AmitOnly], user.role) && (
-            <Button
-              onClick={() => {
-                setIsEditing(false);
-                form.resetFields();
-                setIsModalVisible(true);
-              }}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-5 px-2 flex items-center rounded transition duration-300 ease-in-out transform hover:scale-105 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            >
-              <PlusOutlined className="text-xl mr-2" />
-              <span className="hidden md:inline">Add Resource</span>
-            </Button>
-          )}
+        {isLoggedIn && user && roleGuard([Roles.ForAll], user.role) && (
+          <Button
+            onClick={() => {
+              setIsEditing(false);
+              form.resetFields();
+              setIsModalVisible(true);
+            }}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-5 px-2 flex items-center rounded transition duration-300 ease-in-out transform hover:scale-105 shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
+            <PlusOutlined className="text-xl mr-2" />
+            <span className="hidden md:inline">Add Resource</span>
+          </Button>
+        )}
       </div>
 
       <Tabs defaultActiveKey="1">
