@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Roles = require("../utils/roles");
+const { FULL_STACK_SKILLS } = require("../utils/constant");
 const authSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -29,6 +30,7 @@ const authSchema = mongoose.Schema(
     },
     skills: {
       type: [String],
+      enum: FULL_STACK_SKILLS,
       default: [],
     },
   },

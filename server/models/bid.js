@@ -1,72 +1,60 @@
 const mongoose = require("mongoose");
+const { PORTALS, BID_STATUS } = require("../utils/constant");
 const AddBiddingSchema = mongoose.Schema(
   {
-    IdUsed: {
+    title: {
       type: String,
-      default: null,
+      required: true,
     },
-    idUsedForBid: {
+
+    portal: {
+      type: String,
+      enum: PORTALS,
+      required: true,
+    },
+
+    technology: {
+      type: [String],
+      required: true,
+    },
+
+    team: {
       type: mongoose.Types.ObjectId,
-      ref: "userId",
+      ref: "auth",
       required: true,
     },
-    JobTitle: {
-      type: String,
-      required: true,
-    },
-    URL: {
+
+    bidLink: {
       type: String,
       required: true,
       unique: true,
     },
-    username: {
-      type: String,
-      default: null,
-    },
-    nameofbidder: {
-      type: String,
-      default: null,
-    },
-    bidderId: {
-      type: mongoose.Types.ObjectId,
-      required: true,
-      ref: "auth",
-    },
-    department: {
+
+    proposalLink: {
       type: String,
       required: true,
-      enum: ["OST","BED","JST","SI","LAMP", "MED", "SDM", "MSS", "SI","DTX","DevOps"],
+      unique: true,
     },
-    portal: {
-      type: String,
-      enum: ["Upwork", "PPH","GURU","LinkedIn","Email Marketing", "Appfutura","Freelancer","Codeur"],
-      required: true,
-    },
-    status: {
+
+    bidStatus: {
       type: String,
       required: true,
-      enum: ["Job Submitted", "Response Received", "Scrapped", "Converted"],
-      default: "Job Submitted",
+      enum: Object.keys(BID_STATUS).map((key) => BID_STATUS[key]),
+      default: BID_STATUS.Submitted,
     },
+
     connect: {
       type: Number,
       default: 0,
     },
-    jobLink: {
-      type: String,
+
+    bidder: {
+      type: mongoose.Types.ObjectId,
       required: true,
-      unique: true,
+      ref: "auth",
     },
-    technology: {
-      type: String,
-      required: true,
-    },
-    bidType:{
-      type:String,
-      required: true,
-      enum:["Bid","Invite","Email Marketing"]
-    }
   },
+
   {
     timestamps: true,
   }

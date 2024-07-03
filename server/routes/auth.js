@@ -7,7 +7,7 @@ const {
   validateForgotPassword,
   validateResetPassword,
   updateEmailValidation,
-  validateSendInvite
+  validateSendInvite,
 } = require("../Validations/auth-validation");
 const {
   register,
@@ -17,11 +17,12 @@ const {
   updateEmail,
   getProfile,
   sendInvite,
-  validateInviteToken
+  validateInviteToken,
+  updateSkills,
 } = require("../controllers/auth");
 
 router.post("/accept-invite/:token", validateRegister, register);
-router.post("/send-invite", validateSendInvite, sendInvite)
+router.post("/send-invite", validateSendInvite, sendInvite);
 router.get("/verify/invite-token/:token", validateInviteToken);
 router.post("/login", validateLogin, login);
 router.get("/profile", verifyToken, getProfile);
@@ -30,5 +31,6 @@ router.post("/:token", validateResetPassword, resetPassword);
 
 // update the logged user email
 router.put("/update_email", updateEmailValidation, verifyToken, updateEmail);
+router.put("/skills", verifyToken, updateSkills);
 
 module.exports = router;

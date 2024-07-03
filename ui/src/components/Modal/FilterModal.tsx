@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { DateRangePicker } from "react-date-range"; // Import DateRangePicker component from react-date-range
-import "react-date-range/dist/styles.css"; // Styles for the date range picker
-import "react-date-range/dist/theme/default.css"; // Default theme for the date range picker
+import { DateRangePicker } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 import { FilterInterface } from "../../interfaces";
 import { format } from "date-fns";
 
@@ -31,9 +31,6 @@ const FilterModal: React.FC<FilterModalPropsInterface> = ({
   const [statusValue, setStatusValue] = useState<string | undefined>(
     filter?.status
   );
-  const [bidTypeValue, setBidTypeValue] = useState<string | undefined>(
-    filter?.bidType
-  );
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target;
@@ -59,9 +56,6 @@ const FilterModal: React.FC<FilterModalPropsInterface> = ({
     setStatusValue(event.target.value);
   };
 
-  const handleBidTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setBidTypeValue(event.target.value);
-  };
 
   const handleApplyFilter = () => {
     const startDate = format(dateRange.startDate, "yyyy-MM-dd");
@@ -74,7 +68,6 @@ const FilterModal: React.FC<FilterModalPropsInterface> = ({
 
     const filter = {
       status: statusValue,
-      bidType: bidTypeValue,
       startDate: rangeGreaterThanOneDay ? startDate : undefined,
       endDate: rangeGreaterThanOneDay ? endDate : undefined,
     };
@@ -113,33 +106,9 @@ const FilterModal: React.FC<FilterModalPropsInterface> = ({
             checked={selectedFilters && selectedFilters.includes("status")}
             onChange={handleFilterChange}
           />
-          <span className="ml-2">Status</span>
-        </label>
-        <label className="inline-flex items-center ml-4">
-          <input
-            type="checkbox"
-            className="form-checkbox text-blue-500"
-            value="bidType"
-            checked={selectedFilters && selectedFilters.includes("bidType")}
-            onChange={handleFilterChange}
-          />
-          <span className="ml-2">Bid Type</span>
+          <span className="ml-2">Bid Status</span>
         </label>
       </div>
-
-      {selectedFilters && selectedFilters.includes("bidType") && (
-        <select
-          value={bidTypeValue}
-          onChange={handleBidTypeChange}
-          className="w-full mx-1 my-4  px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-          required
-        >
-          <option value="">Select Bid Type</option>
-          <option value="Bid">Bid</option>
-          <option value="Invite">Invite</option>
-          <option value="Email Marketing">Email Marketing</option>
-        </select>
-      )}
 
       {selectedFilters && selectedFilters.includes("status") && (
         <select
@@ -149,7 +118,7 @@ const FilterModal: React.FC<FilterModalPropsInterface> = ({
           className="w-full mx-1 my-4  px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
         >
           <option value="">Select Status</option>
-          <option value="Job Submitted">Job Submitted</option>
+          <option value="Submitted">Submitted</option>
           <option value="Response Received">Response Received</option>
           <option value="Scrapped">Scrapped</option>
           <option value="Converted">Converted</option>

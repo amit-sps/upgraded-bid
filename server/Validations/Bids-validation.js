@@ -7,103 +7,75 @@ const {
 } = require("express-validator");
 const bidding = require("../models/bid");
 const userId = require("../models/team");
+const authModel = require("../models/auth");
+const { PORTALS, BID_STATUS } = require("../utils/constant");
 
-exports.addBidsValidate = [
-  body("JobTitle")
-    .trim()
-    .notEmpty()
-    .bail()
-    .withMessage("JobTitle is required."),
-  body("IdUsed")
+exports.bidsValidate = [
+  body("title").trim().notEmpty().withMessage("JobTitle is required."),
+
+  body("team")
     .isMongoId()
-    .exists()
-    .withMessage("Id is Invalid.")
+    .withMessage("Invalid Team ID.")
     .custom(async (value) => {
-      return userId.findById(value).then((userId) => {
-        if (!userId) {
-          return Promise.reject("Idused does not exist.");
-        }
-        return true;
-      });
+      const teamExists = await authModel.findById(value);
+      if (!teamExists) {
+        return Promise.reject("Team does not exist.");
+      }
     }),
-  body("URL", "URL is required.")
+
+  body("bidLink")
     .trim()
     .notEmpty()
-    .bail()
-    .custom((value) => {
-      return bidding.findOne({ URL: value }).then((URL) => {
-        if (URL !== null) {
-          return Promise.reject("URL Already exist.");
-        }
-        return true;
-      });
-    })
+    .withMessage("Bid link is required.")
     .isURL()
-    .withMessage("URL is invalid."),
-  body("department")
-    .isIn([
-      "OST",
-      "BED",
-      "JST",
-      "LAMP",
-      "MED",
-      "SDM",
-      "MSS",
-      "SI",
-      "DTX",
-      "DevOps",
-    ])
-    .withMessage("Department is invalid."),
-  body("portal")
-    .isIn([
-      "Upwork",
-      "PPH",
-      "GURU",
-      "LinkedIn",
-      "Email Marketing",
-      "Appfutura",
-      "Freelancer",
-      "Codeur",
-    ])
-    .withMessage("Portal is Invalid."),
-  body("bidType")
-    .isIn(["Bid", "Invite", "Email Marketing"])
-    .withMessage("BidType is invalid."),
-  body("status")
-    .isIn(["Job Submitted", "Response Received", "Scrapped", "Converted"])
-    .withMessage("Status is invalid"),
-  body("jobLink", "JobLink is required.")
-    .trim()
-    .notEmpty()
-    .bail()
-    .custom((value) => {
-      return bidding.findOne({ jobLink: value }).then((jobLink) => {
-        if (jobLink !== null) {
-          return Promise.reject("JobLink Already exist.");
-        }
-        return true;
+    .withMessage("Bid URL is invalid.")
+    .custom(async (value, { req }) => {
+      const bid = await bidding.findOne({
+        bidLink: value,
+        _id: { $ne: req.params.id },
       });
+      if (bid) {
+        return Promise.reject("Bid link already exists.");
+      }
     }),
-  body("connect").trim().notEmpty().bail().withMessage("Connect is required."),
-  body("technology")
+
+  body("portal").isIn(PORTALS).withMessage("Portal is Invalid."),
+
+  body("bidStatus")
+    .isIn(Object.keys(BID_STATUS).map((key) => BID_STATUS[key]))
+    .withMessage("Status is invalid"),
+
+  body("proposalLink")
     .trim()
     .notEmpty()
-    .bail()
-    .withMessage("Technology is required."),
+    .withMessage("Proposal link is required.")
+    .custom(async (value, { req }) => {
+      const bid = await bidding.findOne({
+        proposalLink: value,
+        _id: { $ne: req.params.id },
+      });
+      if (bid) {
+        return Promise.reject("Proposal link already exists.");
+      }
+    }),
+
+  body("connect").trim().notEmpty().withMessage("Connect is required."),
+
+  body("technology").notEmpty().withMessage("Technology is required."),
 ];
 
 exports.getBidsValidate = [
   query("pageCount").optional().isNumeric().withMessage("Invalid page number."),
   query("status")
     .optional()
-    .isIn(["Job Submitted", "Response Received", "Scrapped", "Converted"]),
+    .isIn(Object.keys(BID_STATUS).map((key) => BID_STATUS[key])),
   query("bidType").optional().isIn(["Bid", "Invite", "Email Marketing"]),
 ];
 
 exports.getBidsWithoutPaginationValidate = [
   query("status")
     .optional()
-    .isIn(["Job Submitted", "Response Received", "Scrapped", "Converted"]),
+    .isIn(Object.keys(BID_STATUS).map((key) => BID_STATUS[key])),
   query("bidType").optional().isIn(["Bid", "Invite", "Email Marketing"]),
 ];
 
@@ -111,90 +83,6 @@ exports.getBidByIdValidate = [
   param("id").isMongoId().exists().withMessage("Id is invalid."),
 ];
 
-exports.editBidByIdValidate = [
-  param("id").isMongoId().exists().withMessage("Id is invalid."),
-  body("JobTitle")
-    .trim()
-    .notEmpty()
-    .bail()
-    .withMessage("JobTitle is required."),
-  body("URL", "URL is required.")
-    .trim()
-    .notEmpty()
-    .bail()
-    .custom(async (value, { req }) => {
-      let Bid = await bidding
-        .findOne({ URL: value, _id: { $ne: req.params.id } })
-        .then((Bid) => {
-          if (Bid) {
-            return Promise.reject("URL already exist.");
-          }
-          return true;
-        });
-    })
-    .isURL()
-    .withMessage("URL is invalid."),
-  body("department")
-    .isIn([
-      "OST",
-      "BED",
-      "JST",
-      "LAMP",
-      "MED",
-      "SDM",
-      "MSS",
-      "SI",
-      "DTX",
-      "DevOps",
-    ])
-    .withMessage("Department is invalid."),
-  body("status")
-    .isIn(["Job Submitted", "Response Received", "Scrapped", "Converted"])
-    .withMessage("Status is invalid."),
-  body("bidType")
-    .isIn(["Bid", "Invite", "Email Marketing"])
-    .withMessage("BidType is invalid."),
-  body("jobLink", "JobLink is required.")
-    .trim()
-    .notEmpty()
-    .bail()
-    .custom(async (value, { req }) => {
-      let Bid = await bidding
-        .findOne({ jobLink: value, _id: { $ne: req.params.id } })
-        .then((Bid) => {
-          if (Bid) {
-            return Promise.reject("JobLink Already exist.");
-          }
-          return true;
-        });
-    }),
-  body("IdUsed")
-    .isMongoId()
-    .exists()
-    .withMessage("Id is invalid.")
-    .trim()
-    .notEmpty()
-    .bail()
-    .withMessage("IdUsed is required."),
-  body("portal")
-    .isIn([
-      "Upwork",
-      "PPH",
-      "GURU",
-      "LinkedIn",
-      "Email Marketing",
-      "Appfutura",
-      "Freelancer",
-      "Codeur",
-    ])
-    .withMessage("Portal is invalid."),
-  body("connect").trim().notEmpty().bail().withMessage("Connect is required."),
-  body("technology")
-    .trim()
-    .notEmpty()
-    .bail()
-    .withMessage("Technology is required."),
-];
 exports.searchByValueValidate = [
   query("value").not().isEmpty().withMessage("Value cannot be empty."),
   query("pageCount").not().isEmpty().withMessage("PageCount cannot be empty."),
@@ -203,7 +91,7 @@ exports.searchByValueValidate = [
 exports.userBidsValidate = [
   query("status")
     .optional()
-    .isIn(["Job Submitted", "Response Received", "Scrapped", "Converted", ""]),
+    .isIn(Object.keys(BID_STATUS).map((key) => BID_STATUS[key])),
   check("startDate")
     .optional()
     .custom((value, { req }) => {

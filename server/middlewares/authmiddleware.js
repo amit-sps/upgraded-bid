@@ -13,7 +13,7 @@ function verifyToken(req, res, next) {
         .status(401)
         .send({ auth: false, message: "Failed to authenticate token." });
 
-    req.user = await authModel.findById(decoded.id).select('role name username email');
+    req.user = await authModel.findById(decoded.id).select('role name username email skills');
     next();
   });
 }

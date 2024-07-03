@@ -40,6 +40,8 @@ exports.register = async (req, res) => {
       password: encPwd,
       username: req.body.username,
       email: req.body.email,
+      isEmailVerified: true
+
     });
 
     if (authData._id) {
@@ -152,6 +154,7 @@ exports.login = async (req, res) => {
                 username: user.username,
                 _id: user._id,
                 emailExist: user.email === undefined ? false : true,
+                skills: user.skills || [],
               },
             });
           }
@@ -251,6 +254,19 @@ exports.updateEmail = async (req, res) => {
     const { _id: userId } = req.user;
     await authModel.findByIdAndUpdate(userId, { email });
     return res.status(200).json({ status: true, message: "Email updated." });
+  } catch (error) {
+    logger.error(error.message);
+    return res.status(500).json({ message: "Internal Server error" });
+  }
+};
+
+exports.updateSkills = async (_req, _res) => {
+  try {
+    const { skills } = _req.body;
+    console.log("Skills", skills)
+    const { _id: userId } = _req.user;
+    await authModel.findByIdAndUpdate(userId, { skills });
+    return _res.status(200).json({ status: true, message: "Skills updated." });
   } catch (error) {
     logger.error(error.message);
     return res.status(500).json({ message: "Internal Server error" });

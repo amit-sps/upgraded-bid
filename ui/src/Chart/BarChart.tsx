@@ -19,33 +19,31 @@ const BarChart = () => {
     endDate: filter?.endDate,
   });
 
-  const labels = bidderData?.Bid.map((bidder) => bidder.nameofbidder);
-  const totalBidNo = bidderData?.Bid.map((bidder) => bidder.totalBidNo);
+  const labels = bidderData?.data.map((bidder) => bidder.nameOfBidder) || [];
+  const totalNumberOfBid =
+    bidderData?.data.map((bidder) => bidder.totalNumberOfBid) || [];
+  const totalNumberOfResources =
+    bidderData?.data.map((bidder) => bidder.totalNumberOfResources) || [];
 
-  const gradientColors = [
-    "rgba(255, 99, 132, 0.8)",
-    "rgba(54, 162, 235, 0.8)",
-    "rgba(255, 206, 86, 0.8)",
-    "rgba(75, 192, 192, 0.8)",
-    "rgba(153, 102, 255, 0.8)",
-    "rgba(255, 159, 64, 0.8)",
-    "rgba(255, 0, 0, 0.8)",
-    "rgba(0, 255, 0, 0.8)",
-    "rgba(0, 0, 255, 0.8)",
-    "rgba(255, 255, 0, 0.8)",
-    "rgba(255, 0, 255, 0.8)",
-    "rgba(0, 255, 255, 0.8)",
-    "rgba(128, 128, 128, 0.8)",
-  ];
+  const adjustData = (data: any) => {
+    return data.every((value: any) => value === 0) ? data.map(() => 0.1) : data;
+  };
 
   const data = {
     labels,
     datasets: [
       {
-        label: "User List",
-        data: totalBidNo,
-        backgroundColor: gradientColors,
-        borderColor: gradientColors,
+        label: "Bids",
+        data: adjustData(totalNumberOfBid),
+        backgroundColor: "rgba(54, 162, 235, 0.8)",
+        borderColor: "rgba(255, 255, 0, 0.8)",
+        borderWidth: 1,
+      },
+      {
+        label: "Resources",
+        data: adjustData(totalNumberOfResources),
+        backgroundColor: "rgba(0, 255, 255, 0.8)",
+        borderColor: "rgba(255, 255, 0, 0.8)",
         borderWidth: 1,
       },
     ],
@@ -57,6 +55,16 @@ const BarChart = () => {
     scales: {
       y: {
         beginAtZero: true,
+        min: 0,
+      },
+    },
+    plugins: {
+      title: {
+        display: true,
+        text: "Team Graph",
+        font: {
+          size: 20,
+        },
       },
     },
   };
@@ -68,8 +76,7 @@ const BarChart = () => {
 
   return (
     <div className="w-full flex justify-center items-center">
-
-       {filterModal && (
+      {filterModal && (
         <ModalLayout
           isModalOpen={filterModal}
           setModal={setFilterModal}
@@ -86,7 +93,12 @@ const BarChart = () => {
         />
       )}
       <div style={{ width: "100%", height: "390px" }}>
-        <FiFilter onClick={()=> setFilterModal(true)} color="rgba(54, 162, 235, 0.8)" className="cursor-pointer ml-auto" size={25}/>
+        <FiFilter
+          onClick={() => setFilterModal(true)}
+          color="rgba(54, 162, 235, 0.8)"
+          className="cursor-pointer ml-auto"
+          size={25}
+        />
         <Bar data={data} options={options} />
       </div>
     </div>

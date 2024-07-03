@@ -2,9 +2,12 @@ const Bidding = require("../models/bid");
 const mongoose = require("mongoose");
 const moment = require("moment");
 const { validationResult } = require("express-validator");
-const userIdModel = require("../models/team");
+const teamModel = require("../models/team");
 const logger = require("../utils/winston.util");
 const Roles = require("../utils/roles");
+const { FULL_STACK_SKILLS, BID_STATUS } = require("../utils/constant");
+const auth = require("../models/auth");
+const resourceModal = require("../models/resource");
 
 exports.addBid = async (req, res) => {
   try {
@@ -18,17 +21,14 @@ exports.addBid = async (req, res) => {
     }
 
     const result = await Bidding.create({
-      idUsedForBid: req.body.IdUsed,
-      JobTitle: req.body.JobTitle,
-      URL: req.body.URL,
-      username: req.user.username,
-      nameofbidder: req.user.name,
-      bidderId: req.user._id,
-      department: req.body.department,
+      team: req.body.team,
+      title: req.body.title,
+      proposalLink: req.body.proposalLink,
+      bidder: req.user._id,
       portal: req.body.portal,
-      status: req.body.status,
+      bidStatus: req.body.bidStatus,
       connect: req.body.connect,
-      jobLink: req.body.jobLink,
+      bidLink: req.body.bidLink,
       technology: req.body.technology,
       bidType: req.body.bidType,
     });
@@ -100,10 +100,10 @@ const buildQuery = (req) => {
 
   if (search) {
     query["$or"] = [
-      { JobTitle: { $regex: search, $options: "i" } },
-      { nameofbidder: { $regex: search, $options: "i" } },
-      { jobLink: { $regex: search, $options: "i" } },
-      { IdUsed: { $regex: search, $options: "i" } },
+      { title: { $regex: search, $options: "i" } },
+      { bidLink: { $regex: search, $options: "i" } },
+      { "bidder.name": { $regex: search, $options: "i" } },
+      { "team.name": { $regex: search, $options: "i" } },
     ];
   }
 
@@ -113,6 +113,34 @@ const buildQuery = (req) => {
 const getBids = async (query, skip) => {
   try {
     const aggregationPipeline = [
+      {
+        $lookup: {
+          from: auth.collection.name,
+          localField: "team",
+          foreignField: "_id",
+          as: "team",
+        },
+      },
+      {
+        $unwind: {
+          path: "$team",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: auth.collection.name,
+          localField: "bidder",
+          foreignField: "_id",
+          as: "bidder",
+        },
+      },
+      {
+        $unwind: {
+          path: "$bidder",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       { $match: query },
       {
         $sort: { createdAt: -1 },
@@ -121,38 +149,27 @@ const getBids = async (query, skip) => {
       {
         $limit: 10,
       },
-      {
-        $lookup: {
-          from: userIdModel.collection.name,
-          localField: "idUsedForBid",
-          foreignField: "_id",
-          as: "userIds",
-        },
-      },
-      {
-        $unwind: {
-          path: "$userIds",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
+
       {
         $project: {
-          IdUsed: "$userIds.id",
-          JobTitle: 1,
-          URL: 1,
-          username: 1,
-          nameofbidder: 1,
-          status: 1,
+          "bidder._id": 1,
+          "bidder.name": 1,
+          "bidder.username": 1,
+          "bidder.email": 1,
+          "team._id": 1,
+          "team.name": 1,
+          "team.username": 1,
+          "team.email": 1,
+          "team.skills": 1,
+          title: 1,
+          proposalLink: 1,
+          bidStatus: 1,
           createdAt: 1,
           portal: 1,
-          department: 1,
-          jobLink: 1,
+          bidLink: 1,
           technology: 1,
-          idUsedForBid: 1,
-          bidderId: 1,
           updatedAt: 1,
           connect: 1,
-          bidType: 1,
         },
       },
     ];
@@ -181,36 +198,52 @@ exports.getBidById = async (req, res) => {
       { $match: { _id: id } },
       {
         $lookup: {
-          from: userIdModel.collection.name,
-          localField: "idUsedForBid",
+          from: auth.collection.name,
+          localField: "team",
           foreignField: "_id",
-          as: "userIds",
+          as: "team",
         },
       },
       {
         $unwind: {
-          path: "$userIds",
+          path: "$team",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: auth.collection.name,
+          localField: "bidder",
+          foreignField: "_id",
+          as: "bidder",
+        },
+      },
+      {
+        $unwind: {
+          path: "$bidder",
           preserveNullAndEmptyArrays: true,
         },
       },
       {
         $project: {
-          IdUsed: "$userIds.id",
-          JobTitle: 1,
-          URL: 1,
-          username: 1,
-          nameofbidder: 1,
-          status: 1,
-          connect: 1,
+          "bidder._id": 1,
+          "bidder.name": 1,
+          "bidder.username": 1,
+          "bidder.email": 1,
+          "team._id": 1,
+          "team.name": 1,
+          "team.username": 1,
+          "team.email": 1,
+          "team.skills": 1,
+          title: 1,
+          proposalLink: 1,
+          bidStatus: 1,
           createdAt: 1,
           portal: 1,
-          department: 1,
-          jobLink: 1,
+          bidLink: 1,
           technology: 1,
-          idUsedForBid: 1,
-          bidderId: 1,
           updatedAt: 1,
-          bidType: 1,
+          connect: 1,
         },
       },
     ]);
@@ -229,22 +262,12 @@ exports.editBidById = async (req, res) => {
       errors: errors.array(),
     });
   }
+  console.log("Hereeeeeeeeeeeeeee.");
   try {
     const id = req.params.id;
     Bidding.findByIdAndUpdate(
       id,
-      {
-        JobTitle: req.body.JobTitle,
-        idUsedForBid: req.body.IdUsed,
-        portal: req.body.portal,
-        URL: req.body.URL,
-        department: req.body.department,
-        status: req.body.status,
-        connect: req.body.connect,
-        jobLink: req.body.jobLink,
-        technology: req.body.technology,
-        bidType: req.body.bidType,
-      },
+      req.body,
       {
         new: true,
       },
@@ -384,7 +407,7 @@ exports.searchByValue = async (req, res) => {
         },
         {
           $lookup: {
-            from: userIdModel.collection.name,
+            from: teamModel.collection.name,
             localField: "idUsedForBid",
             foreignField: "_id",
             as: "userIds",
@@ -453,7 +476,7 @@ exports.searchByValue = async (req, res) => {
         },
         {
           $lookup: {
-            from: userIdModel.collection.name,
+            from: teamModel.collection.name,
             localField: "idUsedForBid",
             foreignField: "_id",
             as: "userIds",
@@ -493,84 +516,47 @@ exports.searchByValue = async (req, res) => {
   }
 };
 
-exports.usercountBids = async function (req, res) {
-  const date = new Date();
-  const todayDateBid = date.setHours(0, 0, 0, 0);
-  let WeekStartDate = moment().subtract(1, "weeks").startOf("week");
-  let WeekEndDate = moment().subtract(1, "weeks").endOf("week");
-  let currentMonthStartDate = moment().startOf("month");
-  let currentMonthLastDate = moment().endOf("month");
-
-  let lastMonthStartDate = moment()
-    .subtract(1, "month")
-    .startOf("month")
-    .format("YYYY-MM-DD");
-  let lastMonthEndDate = moment()
-    .subtract(1, "month")
-    .endOf("month")
-    .format("YYYY-MM-DD");
-
-  let username = req.user.username;
-  const isAdmin =
-    req.user.role === Roles.Admin || req.user.role === Roles.AmitOnly || false;
+exports.dashboardCount = async function (req, res) {
   try {
-    if (isAdmin) {
-      let BidToday = await Bidding.countDocuments({
-        createdAt: { $gte: todayDateBid },
-      });
-      let BidWeek = await Bidding.countDocuments({
-        createdAt: { $gte: WeekStartDate, $lte: WeekEndDate },
-      });
-      let BidLastMonth = await Bidding.countDocuments({
-        createdAt: { $gte: lastMonthStartDate, $lte: lastMonthEndDate },
-      });
-      let BidCurrentMonth = await Bidding.countDocuments({
-        createdAt: { $gte: currentMonthStartDate, $lte: currentMonthLastDate },
-      });
-      let totalBid = await Bidding.estimatedDocumentCount({});
-      res.status(200).json({
-        totalCountBid: totalBid,
-        countToday: BidToday,
-        countWeek: BidWeek,
-        lastMonthBidCount: BidLastMonth,
-        currentMonthBidCount: BidCurrentMonth,
-        dateStartLastMonth: lastMonthStartDate,
-        dateEndLastMonth: lastMonthEndDate,
-      });
-    } else {
-      let totalBid = await Bidding.find({
-        username: username,
-      }).countDocuments();
-      let BidToday = await Bidding.find({ username: username }).countDocuments({
-        createdAt: { $gte: todayDateBid },
-      });
-      let BidWeek = await Bidding.find({ username: username }).countDocuments({
-        createdAt: { $gte: WeekStartDate, $lte: WeekEndDate },
-      });
-      let BidLastMonth = await Bidding.find({
-        username: username,
-      }).countDocuments({
-        createdAt: { $gte: lastMonthStartDate, $lte: lastMonthEndDate },
-      });
-      let BidCurrentMonth = await Bidding.find({
-        username: username,
-      }).countDocuments({
-        createdAt: { $gte: currentMonthStartDate, $lte: currentMonthLastDate },
-      });
+    const date = new Date();
+    const todayDate = date.setHours(0, 0, 0, 0);
 
-      res.status(200).json({
-        totalCountBid: totalBid,
-        countToday: BidToday,
-        countWeek: BidWeek,
-        lastMonthBidCount: BidLastMonth,
-        currentMonthBidCount: BidCurrentMonth,
-        dateStartLastMonth: lastMonthStartDate,
-        dateEndLastMonth: lastMonthEndDate,
-      });
-    }
-  } catch (ex) {
-    logger.error(ex.message);
-    res.status(500).send({ message: "Internal server error." });
+    // Use Promise.all to execute queries concurrently
+    const [
+      totalBidding,
+      todayBidding,
+      scrappedBid,
+      convertedBid,
+      respondedBid,
+      totalResources,
+      yourResources,
+    ] = await Promise.all([
+      Bidding.countDocuments({}),
+      Bidding.countDocuments({ createdAt: { $gte: todayDate } }),
+      Bidding.countDocuments({ bidStatus: BID_STATUS.Scrapped }),
+      Bidding.countDocuments({ bidStatus: BID_STATUS.Converted }),
+      Bidding.countDocuments({ bidStatus: BID_STATUS.Responded }),
+      resourceModal.countDocuments({}),
+      resourceModal.countDocuments({ postedBy: req.user._id }),
+    ]);
+
+    return res.json({
+      message: "Bidding data retrieved successfully",
+      data: {
+        todayBidding,
+        totalBidding,
+        scrappedBid,
+        convertedBid,
+        totalResources,
+        yourResources,
+        respondedBid,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "An error occurred while retrieving bidding data",
+      error: error.message,
+    });
   }
 };
 
@@ -610,41 +596,66 @@ exports.userBids = async function (req, res) {
       });
     }
 
-    let { status, startDate, endDate, month } = req.query;
-    let query = {};
+    let { status, startDate, endDate } = req.query;
+    let bidQuery = {};
     if (status) {
-      query.status = status;
+      bidQuery.bidStatus = status;
     }
     if (startDate && endDate) {
       startDate = new Date(startDate);
       endDate = new Date(endDate);
       endDate.setHours(endDate.getHours() + 23);
-      query.createdAt = { $gte: startDate, $lte: endDate };
+      bidQuery.createdAt = { $gte: startDate, $lte: endDate };
     }
     if (status && startDate && endDate) {
-      (query.createdAt = { $gte: startDate, $lte: endDate }),
-        (query.status = status);
+      bidQuery = {
+        bidStatus: status,
+        createdAt: { $gte: startDate, $lte: endDate },
+      };
     }
 
-    const Bid = await Bidding.aggregate([
+    const result = await auth.aggregate([
       {
-        $match: query,
+        $lookup: {
+          from: Bidding.collection.name,
+          let: { userId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$bidder", "$$userId"] },
+                ...bidQuery,
+              },
+            },
+          ],
+          as: "bids",
+        },
       },
       {
-        $group: {
-          _id: "$username",
-          totalBidNo: { $sum: 1 },
+        $lookup: {
+          from: resourceModal.collection.name,
+          localField: "_id",
+          foreignField: "postedBy",
+          as: "resources",
         },
       },
       {
         $project: {
-          nameofbidder: "$_id",
-          totalBidNo: 1,
-          _id: 0,
+          nameOfBidder: "$name",
+          totalNumberOfBid: { $size: "$bids" },
+          totalNumberOfResources: { $size: "$resources" },
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { totalNumberOfBid: { $gt: 0 } },
+            { totalNumberOfResources: { $gt: 0 } },
+          ],
         },
       },
     ]);
-    res.status(200).json({ Bid });
+
+    res.status(200).json({ success: true, data: result });
   } catch (ex) {
     logger.error(ex.message);
     res.status(500).send({ message: "Internal server error." });
@@ -776,7 +787,7 @@ exports.getBidsWithoutPagination = async (req, res) => {
         },
         {
           $lookup: {
-            from: userIdModel.collection.name,
+            from: teamModel.collection.name,
             localField: "idUsedForBid",
             foreignField: "_id",
             as: "userIds",
@@ -816,7 +827,7 @@ exports.getBidsWithoutPagination = async (req, res) => {
         { $match: query },
         {
           $lookup: {
-            from: userIdModel.collection.name,
+            from: teamModel.collection.name,
             localField: "idUsedForBid",
             foreignField: "_id",
             as: "userIds",
@@ -917,6 +928,67 @@ exports.getBidTable = async (req, res) => {
     return res.json({ userBids });
   } catch (error) {
     logger.error(error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+exports.getAllSKills = async (_req, res) => {
+  try {
+    return res
+      .status(200)
+      .json({ message: "Skills fetch successfully.", data: FULL_STACK_SKILLS });
+  } catch (error) {
+    logger.error(error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+exports.getBidderTeamBySkills = async (req, res) => {
+  try {
+    const { skills } = req.query;
+    let pipeline = [];
+
+    if (skills) {
+      const skillsArray = Array.isArray(skills) ? skills : skills.split(",");
+      logger.info(`Fetching teams with skills: ${skillsArray.join(", ")}`);
+
+      pipeline = [
+        { $match: { skills: { $in: skillsArray } } },
+        {
+          $addFields: {
+            matchingSkillCount: {
+              $size: { $setIntersection: ["$skills", skillsArray] },
+            },
+          },
+        },
+        { $sort: { matchingSkillCount: -1 } },
+      ];
+    } else {
+      logger.info("Fetching all teams sorted by highest skills");
+
+      pipeline = [
+        { $addFields: { skillCount: { $size: "$skills" } } },
+        { $sort: { skillCount: -1 } },
+      ];
+    }
+
+    pipeline.push({
+      $project: {
+        _id: 1,
+        username: 1,
+        skills: 1,
+        name: 1,
+        email: 1,
+      },
+    });
+
+    const teams = await auth.aggregate(pipeline);
+
+    return res
+      .status(200)
+      .json({ message: "Teams fetched successfully.", data: teams || [] });
+  } catch (error) {
+    logger.error(`Error fetching teams: ${error.message}`);
     return res.status(500).json({ message: "Internal server error." });
   }
 };

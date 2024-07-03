@@ -2,16 +2,12 @@ import { FaBars } from "react-icons/fa6";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { logout } from "../../redux/slices/auth-slice";
 import { setSidebar } from "../../redux/slices/app-slice";
-import { Link } from "react-router-dom";
 import Confirmation from "../Dialog/Confirmation";
 import { RiLogoutCircleRLine } from "react-icons/ri";
-import { roleGuard } from "../../HOC/RoleGuard";
-import { Roles } from "../../assets";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
   const { isSidebarMinimize } = useAppSelector((state) => state.app);
-  const { isLoggedIn, user } = useAppSelector((state) => state.auth);
 
   return (
     <nav className="py-4 container-bg">
@@ -35,39 +31,7 @@ const Navbar = () => {
             onClick={() => dispatch(setSidebar(!isSidebarMinimize))}
           />
         </div>
-        {/* Menu List Section */}
-        <div>
-          <ul className="flex items-center gap-10 space-x-4 text-black">
-            {isLoggedIn &&
-              user &&
-              roleGuard([Roles.Admin, Roles.AmitOnly], user.role) && (
-                <li className="cursor-pointer">
-                  <Link to={"/dashboard"}> Dashboard </Link>
-                </li>
-              )}
-            {isLoggedIn &&
-              user &&
-              roleGuard(
-                [Roles.Admin, Roles.AmitOnly, Roles.BidOnly],
-                user.role
-              ) && (
-                <li className="cursor-pointer">
-                  <Link to={"/dashboard/bids"}> Bids</Link>
-                </li>
-              )}
-            {isLoggedIn &&
-              user &&
-              roleGuard([Roles.Admin, Roles.AmitOnly], user.role) && (
-                <li className="cursor-pointer">
-                  <Link to={"/dashboard/teams"}> Teams</Link>
-                </li>
-              )}
-            <li className="cursor-pointer">
-              <Link to={"/dashboard/resources"}> Resources</Link>
-            </li>
-          </ul>
-        </div>
-        {/* End Menu List Section */}
+      
         <div className="block md:hidden">
           <FaBars className="text-black cursor-pointer" />
         </div>

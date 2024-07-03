@@ -13,8 +13,22 @@ interface LoginResponseInterface {
   user: UserInterface;
 }
 
-interface LoginProps {
-}
+interface LoginProps {}
+
+export const getProfile = async (dispatch: any) => {
+  try {
+    const { data } = await axios.get(`/auth/profile/`, {
+      headers: {
+        "x-access-token": `${localStorage.getItem(
+          "softprodigy-bidding-token"
+        )}`,
+      },
+    });
+    dispatch(login(data));
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const Login: React.FC<LoginProps> = () => {
   const dispatch = useAppDispatch();
@@ -113,24 +127,11 @@ const Login: React.FC<LoginProps> = () => {
     return err;
   }
 
-  const getProfile = async () => {
-    try {
-      const { data } = await axios.get(`/auth/profile/`, {
-        headers: {
-          "x-access-token": `${localStorage.getItem(
-            "softprodigy-bidding-token"
-          )}`,
-        },
-      });
-      dispatch(login(data));
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
 
   useEffect(() => {
     if (localStorage.getItem("softprodigy-bidding-token")) {
-      getProfile();
+      getProfile(dispatch);
     }
   }, []);
 

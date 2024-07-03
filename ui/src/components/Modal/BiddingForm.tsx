@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Button, Select, Row, Col } from "antd";
-import axios from "../../axios";
-import { UserIdInterface } from "../../redux/apis/userid-apis-slice";
-import { toast } from "react-toastify";
+import axios from "../../axios";import { toast } from "react-toastify";
+import {
+  useGetSkillListsQuery,
+  useGetTeamListBySkillsQuery,
+} from "../../redux/apis/bid-apis-slice";
+import { useGetBidStatisticsQuery, useGetBiderDataQuery } from "../../redux/apis/dashboard-api-slice";
 
 const { Option } = Select;
 
@@ -18,8 +21,14 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
   setModal,
   refetch,
 }) => {
-  const [userIds, setUserIds] = useState<UserIdInterface[]>([]);
   const [initialData, setInitialData] = useState({});
+  const [technology, setTechnologies] = useState<string[]>([]);
+  const { data: skillListsData } = useGetSkillListsQuery();
+  const { data: teamList } = useGetTeamListBySkillsQuery({
+    skills: technology,
+  });
+  const {refetch: fetchDashboardCount} = useGetBidStatisticsQuery();
+  const {refetch: fetchDashboardGraph} = useGetBiderDataQuery({});
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (formData: any) => {
     try {
@@ -43,6 +52,8 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
 
       setModal(false);
       refetch();
+      fetchDashboardCount();
+      fetchDashboardGraph();
       toast.success(`Bid ${bidId ? "updated" : "added"} successfully.`, {
         autoClose: 1000,
       });
@@ -79,30 +90,12 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
           )}`,
         },
       });
-      data.portal && fetchUserIdsByPortal(data.portal);
-      setInitialData({ ...data, IdUsed: data?.idUsedForBid });
+      setInitialData({ ...data, team: data?.team?._id });
     } catch (error) {
       setInitialData({});
     }
   };
 
-  const fetchUserIdsByPortal = async (portal: string) => {
-    try {
-      const {
-        data: { userId },
-      } = await axios.get(`/userId/getByPortal/${portal}`, {
-        headers: {
-          "x-access-token": `${localStorage.getItem(
-            "softprodigy-bidding-token"
-          )}`,
-        },
-      });
-      setUserIds(userId);
-    } catch (err) {
-      console.log(err);
-      setUserIds([]);
-    }
-  };
 
   useEffect(() => {
     if (bidId) {
@@ -127,11 +120,11 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
         <Row gutter={[16, 16]}>
           <Col span={12}>
             <Form.Item
-              label="Job Title"
-              name="JobTitle"
-              rules={[{ required: true, message: "Please enter job title" }]}
+              label="Bid Title"
+              name="title"
+              rules={[{ required: true, message: "Please enter bid title" }]}
             >
-              <Input placeholder="Enter Job Title" />
+              <Input placeholder="Enter Bid Title" />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -142,7 +135,6 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
             >
               <Select
                 placeholder="Select Portal"
-                onChange={(value) => fetchUserIdsByPortal(value)}
               >
                 <Option value="Upwork">Upwork</Option>
                 <Option value="PPH">PPH</Option>
@@ -157,14 +149,25 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Id Used"
-              name="IdUsed"
-              rules={[{ required: true, message: "Please select an ID used" }]}
+              label="Technology"
+              name="technology"
+              rules={[
+                { required: true, message: "Please select technologies" },
+              ]}
             >
-              <Select placeholder="Select ID Used">
-                {userIds.map((ids) => (
-                  <Option value={ids._id} key={ids._id}>
-                    {ids.id}
+              <Select
+                mode="multiple"
+                value={technology}
+                onChange={setTechnologies}
+                placeholder="Select technologies"
+                style={{
+                  borderColor: "#ddd",
+                  boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+                }}
+              >
+                {skillListsData?.data.map((skill, inx) => (
+                  <Option key={inx} value={skill}>
+                    {skill}
                   </Option>
                 ))}
               </Select>
@@ -172,21 +175,23 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Bid Type"
-              name="bidType"
-              rules={[{ required: true, message: "Please select a bid type" }]}
+              label="Team"
+              name="team"
+              rules={[{ required: true, message: "Please select an team" }]}
             >
-              <Select placeholder="Select Bid Type">
-                <Option value="Bid">Bid</Option>
-                <Option value="Invite">Invite</Option>
-                <Option value="Email Marketing">Email Marketing</Option>
+              <Select placeholder="Select Team">
+                {teamList?.data.map((team) => (
+                  <Option value={team._id} key={team._id}>
+                    {team.name}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
               label="Job Link"
-              name="jobLink"
+              name="bidLink"
               rules={[{ required: true, message: "Please enter job link" }]}
             >
               <Input placeholder="Enter Job Link" />
@@ -195,7 +200,7 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
           <Col span={12}>
             <Form.Item
               label="Proposal Link"
-              name="URL"
+              name="proposalLink"
               rules={[
                 { required: true, message: "Please enter proposal link" },
               ]}
@@ -205,43 +210,12 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Technology"
-              name="technology"
-              rules={[{ required: true, message: "Please enter technology" }]}
-            >
-              <Input placeholder="Enter Technology" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label="Department"
-              name="department"
-              rules={[
-                { required: true, message: "Please select a department" },
-              ]}
-            >
-              <Select placeholder="Select Department">
-                <Option value="OST">OST</Option>
-                <Option value="BED">BED</Option>
-                <Option value="JST">JST</Option>
-                <Option value="SI">SI</Option>
-                <Option value="MSS">MSS</Option>
-                <Option value="SDM">SDM</Option>
-                <Option value="MED">MED</Option>
-                <Option value="LAMP">LAMP</Option>
-                <Option value="DTX">DTX</Option>
-                <Option value="DevOps">DevOps</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
               label="Status"
-              name="status"
+              name="bidStatus"
               rules={[{ required: true, message: "Please select a status" }]}
             >
               <Select placeholder="Select Status">
-                <Option value="Job Submitted">Job Submitted</Option>
+                <Option value="Submitted">Submitted</Option>
                 {bidId && (
                   <>
                     {" "}
@@ -253,6 +227,7 @@ const BiddingForm: React.FC<BiddingFormProps> = ({
               </Select>
             </Form.Item>
           </Col>
+
           <Col span={12}>
             <Form.Item
               label="Connects"

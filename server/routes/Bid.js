@@ -4,10 +4,9 @@ const roleGuard = require("../middlewares/roleguard");
 const Roles = require("../utils/roles");
 
 const {
-  addBidsValidate,
+  bidsValidate,
   getBidsValidate,
   getBidByIdValidate,
-  editBidByIdValidate,
   searchByValueValidate,
   getBidsWithoutPaginationValidate,
   userBidsValidate,
@@ -19,68 +18,84 @@ const {
   editBidById,
   searchByValue,
   userBids,
-  usercountBids,
+  dashboardCount,
   getAllPortalRecords,
   getBidsWithoutPagination,
   getBidTable,
+  getAllSKills,
+  getBidderTeamBySkills,
 } = require("../controllers/Bid");
 
 router.post(
   "/addBid",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
-  addBidsValidate,
+  bidsValidate,
   addBid
 );
+
 router.get(
   "/getBid",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
   getBidsValidate,
   getBid
 );
+
 router.get(
   "/getBidById/:id",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
   getBidByIdValidate,
   getBidById
 );
+
 router.put(
   "/editBidById/:id",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
-  editBidByIdValidate,
+  bidsValidate,
   editBidById
 );
+
 router.get(
   "/search",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
   searchByValueValidate,
   searchByValue
 );
+
 router.get(
-  "/countUserBids",
+  "/graph",
   roleGuard([Roles.Admin, Roles.AmitOnly]),
   userBidsValidate,
   userBids
 );
+
 router.get(
-  "/biduser",
+  "/dashboard/count",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
-  usercountBids
+  dashboardCount
 );
+
 router.get(
   "/getAllPortalRecords",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
   getAllPortalRecords
 );
+
 router.get(
   "/getBidWithoutPagination",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
   getBidsWithoutPaginationValidate,
   getBidsWithoutPagination
 );
+
 router.get(
   "/getBidTable",
   roleGuard([Roles.Admin, Roles.AmitOnly, Roles.BidOnly]),
   roleGuard([Roles.Admin, Roles.AmitOnly]),
   getBidTable
 );
+
+router.get("/skills", roleGuard([Roles.ForAll]), getAllSKills);
+
+router.get("/teams", roleGuard([Roles.ForAll]), getBidderTeamBySkills);
+
 module.exports = router;

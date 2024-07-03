@@ -26,12 +26,12 @@ const sideBarMenus:SideBarMenuItem[] = [
     link: "/dashboard/bids",
     canAccess: [Roles.Admin, Roles.AmitOnly, Roles.BidOnly],
   },
-  {
-    icon: FaUserSecret,
-    text: "Teams",
-    link: "/dashboard/teams",
-    canAccess: [Roles.Admin, Roles.AmitOnly],
-  },
+  // {
+  //   icon: FaUserSecret,
+  //   text: "Teams",
+  //   link: "/dashboard/teams",
+  //   canAccess: [Roles.Admin, Roles.AmitOnly],
+  // },
   {
     icon: FaUsers,
     text: "Users",

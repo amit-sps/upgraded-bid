@@ -7,6 +7,7 @@ export interface UserInterface {
   _id: string;
   emailExist: boolean;
   role: Role;
+  skills: string[]
 }
 
 
